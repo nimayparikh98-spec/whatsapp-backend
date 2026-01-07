@@ -1,18 +1,25 @@
 const express = require("express");
-const app = express();
+const bodyParser = require("body-parser");
+const twilio = require("twilio");
 
-app.use(express.json());
+const app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.post("/webhook", (req, res) => {
+  const incomingMsg = req.body.Body;
+
+  const twiml = new twilio.twiml.MessagingResponse();
+  twiml.message(`You said: ${incomingMsg}`);
+
+  res.type("text/xml");
+  res.send(twiml.toString());
+});
 
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
-app.post("/webhook", (req, res) => {
-  console.log(req.body);
-  res.sendStatus(200);
-});
-
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port", PORT);
 });
